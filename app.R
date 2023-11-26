@@ -7,19 +7,13 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-
 # Load necessary libraries
 library(shiny)
 library(ggplot2)
 library(plotly)
 library(htmlwidgets)
+library(vegan)
 
-
-# Load necessary libraries
-library(shiny)
-library(ggplot2)
-library(plotly)
 
 # Define UI for application
 ui <- fluidPage(
@@ -42,14 +36,20 @@ ui <- fluidPage(
 # Define server logic
 server <- function(input, output, session) {
   # Define a vector of sound files
-  sounds <- c("/usr/share/sounds/alsa/Front_Center.wav", "/usr/share/sounds/alsa/Rear_Center.wav", "/usr/share/sounds/alsa/Side_Left.wav")
+  #sounds <- c("/usr/share/sounds/alsa/Front_Center.wav", "/usr/share/sounds/alsa/Rear_Center.wav", "/usr/share/sounds/alsa/Side_Left.wav")
+  sounds <- list.files(path = "calls", recursive = TRUE, pattern = "\\.wav$", full.names = TRUE)
+  sounds <- sounds[1:573]
   
   output$plot <- renderPlotly({
     # Create a data frame with 3 points
-    df <- data.frame(x = c(1, 2, 3), y = c(1, 2, 3))
+    #df <- data.frame(x = c(1, 2, 3), y = c(1, 2, 3))
+    df <- readRDS("mfcc_df.RDS")
+    df <- df[1:573,]
+    df_pca <- rda(df[, -c(1)], scale = TRUE)
+    df_sco <- scores(df_pca, display="sites")
     
     # Create a ggplot2 geom_point graph
-    p <- ggplot(df, aes(x = x, y = y)) +
+    p <- ggplot(df_sco, aes(x = PC1, y = PC2, colour = df[,1])) +
       geom_point()
     
     # Convert ggplot2 to plotly
@@ -60,7 +60,7 @@ server <- function(input, output, session) {
       autosize = F,
       hovermode = "closest",
       dragmode = "select",
-      showlegend = F,
+      showlegend = T,
       margin = list(r = 10, t = 25, b = 40, l = 60),
       annotations = list(
         text = "Click on point to play sound",

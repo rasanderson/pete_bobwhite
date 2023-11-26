@@ -9,7 +9,7 @@ library(tuneR)
 setWavPlayer("/usr/bin/aplay")
 
 # Create a list of all .WAV files in the subfolders
-wav_files <- list.files(path = "calls", recursive = TRUE, pattern = "\\.WAV$", full.names = TRUE)
+wav_files <- list.files(path = "calls", recursive = TRUE, pattern = "\\.wav$", full.names = TRUE)
 
 # Read in all .WAV files into a list
 wav_list <- lapply(wav_files, readWave)
