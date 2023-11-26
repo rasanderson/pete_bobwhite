@@ -34,7 +34,8 @@ ui <- fluidPage(
     
     # Main panel for displaying outputs
     mainPanel(
-      plotlyOutput("plot")
+      plotlyOutput("plot"),
+      uiOutput("audio")
     )
   )
 )
@@ -91,9 +92,14 @@ server <- function(input, output, session) {
         el.on('plotly_click', function(data) {
           console.log('Point clicked:', data);
           var pointIndex = data.points[0].pointNumber;
-          var soundFile = sounds[pointIndex];
-          console.log('Playing sound:', soundFile);
-          Shiny.onInputChange('playSound', soundFile);
+          var audioFile = sounds[pointIndex]
+          var audio = new Audio(audioFile);
+          audio.play();
+          Shiny.setInputValue('audioFile', audioFile);
+          console.log('Playing audio file: ' + audioFile);
+          // var soundFile = sounds[pointIndex];
+          // console.log('Playing sound:', soundFile);
+          // Shiny.onInputChange('playSound', soundFile);
         });
       }
     ", jsonlite::toJSON(sounds))
@@ -103,10 +109,10 @@ server <- function(input, output, session) {
     return(gp)
   })
   
-  observeEvent(input$playSound, {
-    print(paste("Playing sound:", input$playSound))
-    system(paste("aplay", input$playSound))
+  observeEvent(input$audioFile, {
+    message("Playing sound:", input$audioFile)
   })
+  
 }
 
 # Run the application 
