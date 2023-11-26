@@ -34,21 +34,25 @@ for(site in 1:length(wav_folders)){
   mfcc_df <- rbind(mfcc_df, this_site)
 }
 
-min_row <- 1
-max_row <- 573 # max is nrow(mfcc_df)
-pca_res <- prcomp(mfcc_df[min_row:max_row, -c(1)], scale. = TRUE)
-ggplot2::autoplot(pca_res, data = mfcc_df[min_row:max_row,], colour = "Class")
-min_row <- 574
-max_row <- nrow(mfcc_df) # max is nrow(mfcc_df)
-pca_res <- prcomp(mfcc_df[min_row:max_row, -c(1)], scale. = TRUE)
-ggplot2::autoplot(pca_res, data = mfcc_df[min_row:max_row,], colour = "Class")
+saveRDS(mfcc_df, "mfcc_df.RDS")
 
-
-
-library(Rtsne)
-mfcc_tsne <- Rtsne(mfcc_df[1:max_row, -1], perplexity = 10)
-mfcc_tsne_df <- data.frame(tSNE1 = mfcc_tsne$Y[,1],
-                           tSNE2 = mfcc_tsne$Y[,2],
-                           site_name = mfcc_df[1:max_row,1])
-ggplot(mfcc_tsne_df, aes(tSNE1, tSNE2, colour = site_name)) +
-  geom_point()
+# min_row <- 1
+# max_row <- 573 # max is nrow(mfcc_df)
+# pca_res <- prcomp(mfcc_df[min_row:max_row, -c(1)], scale. = TRUE)
+# ggplot2::autoplot(pca_res, data = mfcc_df[min_row:max_row,], colour = "Class")
+# min_row <- 574
+# max_row <- nrow(mfcc_df) # max is nrow(mfcc_df)
+# pca_res <- prcomp(mfcc_df[min_row:max_row, -c(1)], scale. = TRUE)
+# ggplot2::autoplot(pca_res, data = mfcc_df[min_row:max_row,], colour = "Class")
+# 
+# # Vegan equivalent
+# pca_res_vgn <- vegan::rda(mfcc_df[min_row:max_row, -c(1)], scale = TRUE)
+# plot(pca_res_vgn, display="sites")
+# 
+# library(Rtsne)
+# mfcc_tsne <- Rtsne(mfcc_df[1:max_row, -1], perplexity = 10)
+# mfcc_tsne_df <- data.frame(tSNE1 = mfcc_tsne$Y[,1],
+#                            tSNE2 = mfcc_tsne$Y[,2],
+#                            site_name = mfcc_df[1:max_row,1])
+# ggplot(mfcc_tsne_df, aes(tSNE1, tSNE2, colour = site_name)) +
+#   geom_point()
