@@ -24,6 +24,12 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       # Placeholder for controls
+      # sliderInput("range", "Recording min max:",
+      #             min = 1, max = 1127,
+      #             value = c(1, 573)),
+      checkboxGroupInput("site_choice", "Filter by site no:",
+                         choices = rep(paste0("no", sprintf("%02d", 1:16))),
+                         selected = rep(paste0("no", sprintf("%02d", 1:8))))
     ),
     
     # Main panel for displaying outputs
@@ -39,12 +45,21 @@ server <- function(input, output, session) {
   #sounds <- c("/usr/share/sounds/alsa/Front_Center.wav", "/usr/share/sounds/alsa/Rear_Center.wav", "/usr/share/sounds/alsa/Side_Left.wav")
   sounds <- list.files(path = "calls", recursive = TRUE, pattern = "\\.wav$", full.names = TRUE)
   sounds <- sounds[1:573]
+  #sounds <- sounds[grepl(paste(input$site_choice, collapse = "|"), sounds)]
+  
   
   output$plot <- renderPlotly({
+    #sounds <- list.files(path = "calls", recursive = TRUE, pattern = "\\.wav$", full.names = TRUE)
+    #sounds <- sounds[1:573]
+    #sounds <- sounds[grepl(paste(input$site_choice, collapse = "|"), sounds)]
+    
     # Create a data frame with 3 points
     #df <- data.frame(x = c(1, 2, 3), y = c(1, 2, 3))
     df <- readRDS("mfcc_df.RDS")
-    df <- df[1:573,]
+    #print(class(df))
+    #df <- df[1:573,]
+    df <- df[df$Class %in% input$site_choice,]
+    #print(dim(df))
     df_pca <- rda(df[, -c(1)], scale = TRUE)
     df_sco <- scores(df_pca, display="sites")
     
