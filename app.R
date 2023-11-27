@@ -48,7 +48,7 @@ server <- function(input, output, session) {
     df <- readRDS("mfcc_df.RDS")
     df <- df[df$Class %in% input$site_choice,]
     df_pca <- rda(df[, -c(1)], scale = TRUE)
-    df_sco <- scores(df_pca, display="sites")
+    df_sco <- data.frame(scores(df_pca, display="sites"))
     
     # Create a ggplot2 geom_point graph
     p <- ggplot(df_sco, aes(x = PC1, y = PC2, colour = df[,1])) +
@@ -56,7 +56,7 @@ server <- function(input, output, session) {
     
     # Convert ggplot2 to plotly
     gp <- ggplotly(p)
-    
+
     # Add click event
     gp <- gp %>% layout(
       autosize = F,
@@ -70,7 +70,7 @@ server <- function(input, output, session) {
         xref = "paper", yref = "paper",
         x = 0.005, y = -0.002 )
     )
-    
+
     # Pass the sounds variable to the JavaScript code
     jsCode <- sprintf("
       function(el, x) {
@@ -84,9 +84,9 @@ server <- function(input, output, session) {
         });
       }
     ", jsonlite::toJSON(sounds))
-    
+
     gp <- gp %>% onRender(jsCode)
-    
+
     return(gp)
   })
   
