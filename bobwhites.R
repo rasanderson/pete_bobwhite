@@ -17,32 +17,52 @@ wav_files <- list.files(path = "calls", recursive = TRUE, pattern = "\\.wav$", f
 # Read in all .WAV files into a list
 wav_list <- lapply(wav_files, readWave)
 
-# Play and visualise spectrogram of one sound
-sound_no <- 621
-SpectrogramSingle(wav_files[sound_no], Colors = "Colors", min.freq = 1000, max.freq = 4000)
-play(wav_list[[sound_no]])
+# # Play and visualise spectrogram of one sound
+# sound_no <- 621 # This recording has good BobWhite call in it
+# SpectrogramSingle(wav_files[sound_no], Colors = "Colors", min.freq = 1000, max.freq = 4000)
+# play(wav_list[[sound_no]])
+# 
+# # Filter out just sounds between 1500 and 3000 Hz
+# myWave <- wav_list[[sound_no]]
+# lower <- 1500
+# upper <- 3000
+# filter_order <- 3
+# lp <- bwfilter(myWave, f = myWave@samp.rate, n = filter_order,
+#                from = lower, to = upper, output = "Wave")
+# spectro(lp)
 
-# Filter out just sounds between 1500 and 3000 Hz
-myWave <- wav_list[[sound_no]]
+# Before pushing through MFCC, filter out the 1500 to 3000 where BobWhites call
+# Create names of filtered files
+filt_files <- sub("calls", "filtered", wav_files)
+
+# Create the new folders to receive the filtered data
+# Extract the unique directory names from the new_filenames vector
+dirs <- unique(dirname(filt_files))
+
+# Create each directory
+for (dir in dirs) {
+  # Check if the directory already exists
+  if (!dir.exists(dir)) {
+    # Create the directory
+    dir.create(dir, recursive = TRUE)
+    print(paste("Directory created: ", dir))
+  } else {
+    print(paste("Directory already exists: ", dir))
+  }
+}
+
+# Apply bandpass filter and write files
 lower <- 1500
 upper <- 3000
 filter_order <- 3
-# low pass
-lp <- bwfilter(myWave, f = myWave@samp.rate, n = filter_order,
-               from = lower, to = upper, output = "Wave")
-spectro(lp)
+for(call in 1:length(wav_list)){
+  myWave <- wav_list[[call]]
+  filtered_call <- bwfilter(myWave, f = myWave@samp.rate, n = filter_order,
+                            from = lower, to = upper, output = "Wave")
+  writeWave(filtered_call, filt_files[call])
+}
 
-# Write the result to a new wave file. Compare sith normalized version of original
-writeWave(filteredWave, "filtered.wav")
-writeWave(normalize(myWave, "16"), "original.wav")
-SpectrogramSingle(wav_files[[sound_no]], Colors = "Colors", min.freq = 1000, max.freq = 4000)
-SpectrogramSingle("original.wav", Colors = "Colors", min.freq = 1000, max.freq = 4000)
-SpectrogramSingle("filtered.wav", Colors = "Colors", min.freq = 1000, max.freq = 4000)
-
-
-
-
-wav_folders <- list.files(path = "calls")
+wav_folders <- list.files(path = "filtered")
 mfcc_list <- list()
 for(site in wav_folders){
   print(site)

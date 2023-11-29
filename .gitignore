@@ -50,3 +50,4 @@ rsconnect/
 
 # calls folder with .WAV files
 calls/
+filtered/
