@@ -5,6 +5,8 @@ library(ggplot2)
 library(ggfortify)
 library(tuneR)
 library(fftw)
+library(seewave)
+library(signal)
 
 # On Ubuntu 20.04. Probably different on Windoze
 setWavPlayer("/usr/bin/aplay")
@@ -21,32 +23,23 @@ SpectrogramSingle(wav_files[sound_no], Colors = "Colors", min.freq = 1000, max.f
 play(wav_list[[sound_no]])
 
 # Filter out just sounds between 1500 and 3000 Hz
-# Perform FFT
 myWave <- wav_list[[sound_no]]
-myFFT <- fft(myWave@left)
-
-# Get the frequencies
-freqs <- seq(0, myWave@samp.rate/2, length.out=length(myFFT)/2+1)
-
-# Zero out the frequencies between 1500 and 3000 Hz
-myFFT[freqs >= 1500 & freqs <= 3000] <- 0
-
-# Perform inverse FFT
-filtered <- Re(fft(myFFT, inverse=TRUE))
-
-# Create a new Wave object with the filtered data
-filteredWave <- Wave(filtered, samp.rate=myWave@samp.rate)
-
-# Normalize the data to the required range
-filteredWave <- normalize(filteredWave, "16")
-play(normalize(myWave, "16"))
-play(filteredWave)
+lower <- 1500
+upper <- 3000
+filter_order <- 3
+# low pass
+lp <- bwfilter(myWave, f = myWave@samp.rate, n = filter_order,
+               from = lower, to = upper, output = "Wave")
+spectro(lp)
 
 # Write the result to a new wave file. Compare sith normalized version of original
 writeWave(filteredWave, "filtered.wav")
 writeWave(normalize(myWave, "16"), "original.wav")
+SpectrogramSingle(wav_files[[sound_no]], Colors = "Colors", min.freq = 1000, max.freq = 4000)
 SpectrogramSingle("original.wav", Colors = "Colors", min.freq = 1000, max.freq = 4000)
 SpectrogramSingle("filtered.wav", Colors = "Colors", min.freq = 1000, max.freq = 4000)
+
+
 
 
 wav_folders <- list.files(path = "calls")
