@@ -66,7 +66,7 @@ wav_folders <- list.files(path = "filtered")
 mfcc_list <- list()
 for(site in wav_folders){
   print(site)
-  mfcc_list[[site]] <- MFCCFunction(input.dir = paste0("calls/", site))
+  mfcc_list[[site]] <- MFCCFunction(input.dir = paste0("filtered/", site))
 }
 # Merge into a dataframe
 mfcc_df <- data.frame()

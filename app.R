@@ -39,7 +39,7 @@ ui <- fluidPage(
 # Define server logic
 server <- function(input, output, session) {
   # Define a vector of sound files
-  sounds <- list.files(path = "calls", recursive = TRUE, pattern = "\\.wav$", full.names = TRUE)
+  sounds <- list.files(path = "filtered", recursive = TRUE, pattern = "\\.wav$", full.names = TRUE)
 
   output$plot <- renderPlotly({
     sounds <- sounds[grepl(paste(input$site_choice, collapse = "|"), sounds)]
