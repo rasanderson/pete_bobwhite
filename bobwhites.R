@@ -38,7 +38,6 @@ filt_files <- sub("calls", "filtered", wav_files)
 # Create the new folders to receive the filtered data
 # Extract the unique directory names from the new_filenames vector
 dirs <- unique(dirname(filt_files))
-
 # Create each directory
 for (dir in dirs) {
   # Check if the directory already exists
@@ -50,7 +49,6 @@ for (dir in dirs) {
     print(paste("Directory already exists: ", dir))
   }
 }
-
 # Apply bandpass filter and write files
 lower <- 1500
 upper <- 3000
@@ -62,6 +60,35 @@ for(call in 1:length(wav_list)){
   writeWave(filtered_call, filt_files[call])
 }
 
+# Create spectrograms of filtered data
+spec_files <- sub("calls", "spectrogram", wav_files)
+spec_files <- sub(".wav", ".png", spec_files)
+# Create the new folders to receive spectrograms
+dirs <- unique(dirname(spec_files))
+# Create each directory
+for (dir in dirs) {
+  # Check if the directory already exists
+  if (!dir.exists(dir)) {
+    # Create the directory
+    dir.create(dir, recursive = TRUE)
+    print(paste("Directory created: ", dir))
+  } else {
+    print(paste("Directory already exists: ", dir))
+  }
+}
+# Generate spectrograms of filtered data
+filt_files <- list.files(path = "filtered", recursive = TRUE, pattern = "\\.wav$", full.names = TRUE)
+filt_list <- wav_list <- lapply(filt_files, readWave)
+for(filt_wav in 1:length(filt_files)){
+  png(spec_files[filt_wav])
+  spectro(filt_list[[filt_wav]])
+  dev.off()
+}
+
+# MFCC of filtered data
+# Extract the unique directory names from the new_filenames vector
+dirs <- unique(dirname(filt_files))
+# MFCC on filtered data
 wav_folders <- list.files(path = "filtered")
 mfcc_list <- list()
 for(site in wav_folders){
